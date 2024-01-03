@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginResponse, login } from "@/actions/login";
+import { RegisterResponse, register } from "@/actions/register";
 import CardWrapper from "@/components/auth/card-wrapper";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
@@ -14,38 +14,39 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { LoginSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const loginResponseInitialState: LoginResponse = {
+const registerResponseInitialState: RegisterResponse = {
   error: "",
   success: "",
 };
 
-export const LoginForm = () => {
-  const [loginResponse, setLoginResponse] = useState<LoginResponse>(
-    loginResponseInitialState,
+export const RegisterForm = () => {
+  const [registerResponse, setRegisterResponse] = useState<RegisterResponse>(
+    registerResponseInitialState,
   );
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       email: "",
       password: "",
+      name: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof LoginSchema>) => {
-    setLoginResponse(loginResponseInitialState);
+  const onSubmit = (data: z.infer<typeof RegisterSchema>) => {
+    setRegisterResponse(registerResponseInitialState);
 
     startTransition(() => {
-      login(data).then(({ error, success }) => {
+      register(data).then(({ error, success }) => {
         if (error || success) {
-          setLoginResponse({ error, success });
+          setRegisterResponse({ error, success });
         }
       });
     });
@@ -54,13 +55,30 @@ export const LoginForm = () => {
   return (
     <CardWrapper
       headerLabel="Welcome back"
-      backButtonLabel="Don't have an account?"
-      backButtonHref="/auth/register"
+      backButtonLabel="Already have an account?"
+      backButtonHref="/auth/login"
       showSocial
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="John Doe"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -94,10 +112,10 @@ export const LoginForm = () => {
               )}
             />
           </div>
-          <FormError message={loginResponse.error} />
-          <FormSuccess message={loginResponse.success} />
+          <FormError message={registerResponse.error} />
+          <FormSuccess message={registerResponse.success} />
           <Button type="submit" className="w-full">
-            Login
+            Create an account
           </Button>
         </form>
       </Form>
