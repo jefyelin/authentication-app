@@ -10,7 +10,9 @@ export default async function SettingsPage() {
   return (
     <>
       <h1>Settings page</h1>
-      <span>{JSON.stringify(session)}</span>
+      <span>
+        <pre>{JSON.stringify(session, null, 2)}</pre>
+      </span>
       <form
         // @ts-ignore
         action={async () => {

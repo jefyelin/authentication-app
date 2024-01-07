@@ -3,7 +3,6 @@
 import { LoginResponse, login } from "@/actions/login";
 import CardWrapper from "@/components/auth/card-wrapper";
 import { FormError } from "@/components/form-error";
-import { FormSuccess } from "@/components/form-success";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,7 +21,6 @@ import * as z from "zod";
 
 const loginResponseInitialState: LoginResponse = {
   error: "",
-  success: "",
 };
 
 export const LoginForm = () => {
@@ -43,9 +41,11 @@ export const LoginForm = () => {
     setLoginResponse(loginResponseInitialState);
 
     startTransition(() => {
-      login(data).then(({ error, success }) => {
-        if (error || success) {
-          setLoginResponse({ error, success });
+      login(data).then((response) => {
+        const error = response?.error;
+
+        if (error) {
+          setLoginResponse({ error });
         }
       });
     });
@@ -95,7 +95,6 @@ export const LoginForm = () => {
             />
           </div>
           <FormError message={loginResponse.error} />
-          <FormSuccess message={loginResponse.success} />
           <Button type="submit" className="w-full">
             Login
           </Button>

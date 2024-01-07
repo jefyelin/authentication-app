@@ -8,12 +8,11 @@ import * as z from "zod";
 
 export interface LoginResponse {
   error?: string;
-  success?: string;
 }
 
 export const login = async (
   data: z.infer<typeof LoginSchema>,
-): Promise<LoginResponse> => {
+): Promise<LoginResponse | undefined> => {
   const validatedFields = LoginSchema.safeParse(data);
 
   if (!validatedFields.success) {
@@ -30,10 +29,6 @@ export const login = async (
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT_URL,
     });
-
-    return {
-      success: "Logged in successfully",
-    };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
