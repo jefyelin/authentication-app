@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -24,6 +25,12 @@ const loginResponseInitialState: LoginResponse = {
 };
 
 export const LoginForm = () => {
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "E-mail already in use with different provider."
+      : "";
+
   const [loginResponse, setLoginResponse] = useState<LoginResponse>(
     loginResponseInitialState,
   );
@@ -94,7 +101,7 @@ export const LoginForm = () => {
               )}
             />
           </div>
-          <FormError message={loginResponse.error} />
+          <FormError message={loginResponse.error || urlError} />
           <Button type="submit" className="w-full">
             Login
           </Button>
