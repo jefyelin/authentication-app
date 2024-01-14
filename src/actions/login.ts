@@ -1,6 +1,7 @@
 "use server";
 
 import { signIn } from "@/auth";
+import { getUserByEmail } from "@/data/user";
 import { DEFAULT_LOGIN_REDIRECT_URL } from "@/routes";
 import { LoginSchema } from "@/schemas";
 import { AuthError } from "next-auth";
@@ -23,6 +24,20 @@ export const login = async (
 
   const { email, password } = validatedFields.data;
 
+  const existingUser = await getUserByEmail(email);
+
+  if (!existingUser || !existingUser.email || !existingUser.password) {
+    return {
+      error: "Email does not exist.",
+    };
+  }
+
+  if (!existingUser.emailVerified) {
+    return {
+      error: "Email not verified. Please check your inbox.",
+    };
+  }
+
   try {
     await signIn("credentials", {
       email,
@@ -34,16 +49,14 @@ export const login = async (
       switch (error.type) {
         case "CredentialsSignin":
           return {
-            error: "Invalid credentials",
+            error: "Invalid credentials.",
           };
         default: {
           return {
-            error: "Something went wrong",
+            error: "Something went wrong. Please try again.",
           };
         }
       }
     }
-
-    throw error;
   }
 };
